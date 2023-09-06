@@ -14,7 +14,7 @@ interface IProps {
  * Perspective library adds load to HTMLElement prototype.
  * This interface acts as a wrapper for Typescript compiler.
  */
-interface PerspectiveViewerElement {
+interface PerspectiveViewerElement extends HTMLElement {
   load: (table: Table) => void,
 }
 
@@ -32,8 +32,16 @@ class Graph extends Component<IProps, {}> {
 
   componentDidMount() {
     // Get element to attach the table from the DOM.
-    const elem: PerspectiveViewerElement = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
-
+    const elem = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
+    elem.setAttribute('view', 'y_line');
+    elem.setAttribute('column-pivots', '["stock"]');
+    elem.setAttribute('row-pivots', '["timestamp"]');
+    elem.setAttribute('columns', '["top_ask_price"]');
+      elem.setAttribute('aggregates',
+          `{"stock": "distinct count",
+          "top_ask_price": "avg",
+          "top_bid_price": "avg",
+          "timestamp": "distinct count"}`);
     const schema = {
       stock: 'string',
       top_ask_price: 'float',
@@ -61,8 +69,8 @@ class Graph extends Component<IProps, {}> {
         // Format the data from ServerRespond to the schema
         return {
           stock: el.stock,
-          top_ask_price: el.top_ask && el.top_ask.price || 0,
-          top_bid_price: el.top_bid && el.top_bid.price || 0,
+          top_ask_price: (el.top_ask && el.top_ask.price) || 0,
+          top_bid_price: (el.top_bid && el.top_bid.price) || 0,
           timestamp: el.timestamp,
         };
       }));
